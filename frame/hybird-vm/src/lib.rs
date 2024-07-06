@@ -3,9 +3,9 @@
 // Licensed under the Business Source License included in the file License.
 // 
 // Only support EVM  contracts which its parameter data max value below 128bit for the time being
+// Modified by Alex Wang 
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![feature(destructuring_assignment)]
 
 pub extern crate alloc;
 
@@ -17,19 +17,22 @@ use sp_std::vec;
 use sp_std::vec::Vec;
 use sp_std::{prelude::*, str,};
 use core::fmt;
+use sp_core::crypto::UncheckedFrom;
 
 use pallet_contracts::chain_extension::{
-	Environment, Ext, InitState, RetVal, SysConfig, UncheckedFrom,
+	Environment, Ext, InitState, RetVal, SysConfig, 
 };
 
 use sp_runtime::app_crypto::sp_core::{H160, U256};
+use sp_runtime::DispatchError;
+
 use serde::{Deserialize, Serialize};
 
 use pallet_evm::Runner;
 use fp_evm::ExecutionInfo;
 use frame_support::sp_runtime::AccountId32;
 use byte_slice_cast::AsByteSlice;
-use frame_support::dispatch::DispatchError;
+
 pub use pallet::*;
 	
 type Result<T> = sp_std::result::Result<T, DispatchError>;
@@ -72,11 +75,11 @@ pub mod pallet {
 	pub trait Config: frame_system::Config +pallet_contracts::Config + pallet_evm::Config
 		where
 		<Self as frame_system::Config>::AccountId: UncheckedFrom<Self::Hash> + AsRef<[u8]> + From<AccountId32>,
-		<<Self as pallet_contracts::Config>::Currency as Currency<<Self as frame_system::Config>::AccountId>>::Balance: From<u128>,
+		<<Self as pallet_contracts::Config>::Currency as Currency<<Self as frame_system::Config>::AccountId>>::Balance: From<u128>, <Self as pallet_contracts::Config>::Currency: frame_support::traits::Currency<<Self as frame_system::Config>::AccountId>
 	{
 
-		/// The overarching event type.
-		type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
+
+		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 
 		/// The overarching dispatch call type.
 		type Call: From<Call<Self>>;
@@ -96,15 +99,16 @@ pub mod pallet {
 	pub enum Event<T: Config> 
 	where 
 		T::AccountId: UncheckedFrom<T::Hash> + AsRef<[u8]> + From<AccountId32>,
-		<<T as pallet_contracts::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance: From<u128>,
+		<<T as pallet_contracts::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance: From<u128>, <T as pallet_contracts::Config>::Currency: frame_support::traits::Currency<<T as frame_system::Config>::AccountId>
 	{
 		EVMExecuted(H160),
 		WasmCExecuted(T::AccountId),
 	}
 
+	const STORAGE_VERSION: StorageVersion = StorageVersion::new(1);
 
 	#[pallet::pallet]
-	#[pallet::generate_store(pub(super) trait Store)]
+	#[pallet::storage_version(STORAGE_VERSION)]
 	pub struct Pallet<T>(PhantomData<T>);
 	
 
@@ -112,7 +116,7 @@ pub mod pallet {
 	impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T>
 	where
 		T::AccountId: UncheckedFrom<T::Hash> + AsRef<[u8]> + From<AccountId32>,
-		<<T as pallet_contracts::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance: From<u128>,
+		<<T as pallet_contracts::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance: From<u128>, <T as pallet_contracts::Config>::Currency: frame_support::traits::Currency<<T as frame_system::Config>::AccountId>
 	{
 	}
 
@@ -121,7 +125,7 @@ pub mod pallet {
 	impl<T: Config> Pallet<T>
 	where
 		T::AccountId: UncheckedFrom<T::Hash> + AsRef<[u8]> + From<AccountId32>,
-		<<T as pallet_contracts::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance: From<u128>,
+		<<T as pallet_contracts::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance: From<u128>, <T as pallet_contracts::Config>::Currency: frame_support::traits::Currency<<T as frame_system::Config>::AccountId>
 	{
 			
 		#[pallet::weight(0)]
@@ -138,7 +142,7 @@ pub mod pallet {
 	impl<T: Config> Pallet<T>
 	where
 		T::AccountId: UncheckedFrom<T::Hash> + AsRef<[u8]> + From<AccountId32>,
-		<<T as pallet_contracts::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance: From<u128>,
+		<<T as pallet_contracts::Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance: From<u128>, <T as pallet_contracts::Config>::Currency: frame_support::traits::Currency<<T as frame_system::Config>::AccountId>
 	{
 				
 		pub fn call_wasm4evm(
@@ -198,7 +202,7 @@ pub mod pallet {
 	impl<C: Config> Pallet<C>
 	where
 		C::AccountId: UncheckedFrom<C::Hash> + AsRef<[u8]> + From<AccountId32>,
-		<<C as pallet_contracts::Config>::Currency as Currency<<C as frame_system::Config>::AccountId>>::Balance: From<u128>,
+		<<C as pallet_contracts::Config>::Currency as Currency<<C as frame_system::Config>::AccountId>>::Balance: From<u128>, <C as pallet_contracts::Config>::Currency: frame_support::traits::Currency<<C as frame_system::Config>::AccountId>
 	{
 		pub fn  call_evm4wasm<E>(mut env: Environment<E, InitState>)-> Result<RetVal>
 		where

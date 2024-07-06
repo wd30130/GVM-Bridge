@@ -75,14 +75,14 @@ frame_support::construct_runtime!(
 		System: frame_system::{Module, Call, Config, Storage, Event<T>},	
 		Balances: pallet_balances::{Module, Call, Storage, Config<T>, Event<T>},
 		Timestamp: pallet_timestamp::{Module, Call, Storage, Inherent},
-		Randomness: pallet_randomness_collective_flip::{Module, Call, Storage},	
+		Randomness: pallet_insecure_randomness_collective_flip::{Module, Call, Storage},	
 		Contracts: pallet_contracts::{Module, Call, Config<T>, Storage, Event<T>},
 		EVM: pallet_evm::{Module, Call, Config, Storage, Event<T>},
 		GvmBridge: pallet_vm_bridge::{Module, Call, Storage, Event<T>},
 	}
 );
 
-impl pallet_randomness_collective_flip::Config for Test {}
+impl pallet_insecure_randomness_collective_flip::Config for Test {}
 
 parameter_types! {
 	pub const Enable2EVM: bool = true;

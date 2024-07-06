@@ -44,7 +44,7 @@ The functions of these components are:
 ### Early development stage(version 0.1.0)
 early development will only provide the GVM Bridge pallet, it include functions of GVM Bridge Framework, WASM-Proxy pallet and EVM-Proxy pallet. 
  
-#### **GVM Bridge pallet**
+#### **Hybird-VM pallet**
 1. Build inter-call framework for different VM contract to provide the interface for virtual machine.
 2. Provide access to contract invocation interface.
 3. Implement the inter-conversion of VM GABI parameters and WASM ABI parameters. 
@@ -89,8 +89,7 @@ cargo +nightly-2021-03-01 test
 
 -------
 #### **License**
-The project are currently licensed under [BSL](https://github.com/CycanTech/GVM-Bridge/blob/main/License)<br>
-Test cases(`tests.*`) and files under /external are licensed under [Apache 2.0](https://github.com/CycanTech/GVM-Bridge/blob/main/License-APACHE2)
+Apache 2.0 (https://github.com/CycanTech/GVM-Bridge/blob/main/License)
 
 #### **Other**
 In order to facilitate developers to develop contract inter-call function, we will provide sample codes for WASM contract and EVM contract inter-calling, such as inter-calling ERC20 contract etc.
